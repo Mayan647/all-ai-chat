@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useState, useEffect, useContext } from "react"
 import AiModelList from './../../shared/AiModelList'
 import Image from 'next/image'
 import {
@@ -15,28 +15,31 @@ import { Button } from '@/components/ui/button'
 import { SelectLabel } from '@radix-ui/react-select'
 import { AiSelectedModelContext } from '@/context/AiSelectedModelContext'
 import { ArrowLeftRight } from "lucide-react"
-/* import { doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/config/FirebaseConfig'
 import { useAuth, useUser } from '@clerk/nextjs' 
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { useSearchParams } from 'next/navigation' */
+//import ReactMarkdown from 'react-markdown'
+// import remarkGfm from 'remark-gfm'
+import { useSearchParams } from 'next/navigation'
 function AiMultiModels() {
-    // const { user } = useUser();
+    const{user}= useUser();
     const [aiModelList, setAiModelList] = useState(AiModelList)
+    const { aiSelectedModels, setAiSelectedModels} = useContext(AiSelectedModelContext);
     const onToggleChange = (model, value) => {
-        setAiModelList((prev) =>
-            prev.map((m) =>
-                m.model === model ? { ...m, enable: value } : m))
-    }
-    //const { aiSelectedModels, setAiSelectedModels, messages, setMessages } = useContext(AiSelectedModelContext);
+            setAiModelList((prev) =>
+                prev.map((m) =>
+                    m.model === model ? { ...m, enable: value } : m))
+
+            setAiSelectedModels((prev) => ({
+                ...prev,
+                [model]: {
+                    ...(prev?.[model] ?? {}),
+                    enable: value
+                }
+            }))
+        }
 /* 
     const { has } = useAuth();
-
-    const onToggleChange = (model, value) => {
-        setAiModelList((prev) =>
-            prev.map((m) =>
-                m.model === model ? { ...m, enable: value } : m))
 
         setAiSelectedModels((prev) => ({
             ...prev,
@@ -46,20 +49,21 @@ function AiMultiModels() {
             }
         }))
     }
-
-
-
-
-
+*/
     const onSelecteValue = async (parentModel, value) => {
         setAiSelectedModels(prev => ({
             ...prev,
             [parentModel]: {
-                modelId: value
+      ...(prev?.[parentModel] ?? {}),  // ✅ preserve existing props (enable)
+      modelId: value
             }
         }))
 
-    } */
+/*         //Update to Firebase Database
+        const docRef=doc(db,"users", user?.primaryEmailAddress?.emailAddress);
+        await updateDoc(docRef,{selectedModelPref:aiSelectedModels})
+ */
+    } 
 
     return (
         <div className="flex flex-1 h-[75vh] border-b">
@@ -80,28 +84,30 @@ function AiMultiModels() {
 
                            
                         
-                              {model.enable &&  <Select>
+                            {model.enable && aiSelectedModels[model.model]?.enable && (
+                                <Select value={aiSelectedModels[model.model]?.modelId}
+                                    onValueChange={(value) => onSelecteValue(model.model, value)}
+                                    disabled={model.premium}
+                                >
+
                                     <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder={model.subModel[0].name} />
+                                        <SelectValue placeholder={aiSelectedModels[model.model]?.modelId} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup className="px-3">
                                             <SelectLabel className='text-sm text-gray-400'>Free</SelectLabel>
-                                            {model.subModel.map((subModel, index) => (
-                                                <SelectItem key={index} value={subModel.name}>    
-                                                </SelectItem>
+                                            {model.subModel.map((subModel, i) => subModel.premium == false && (
+                                               <SelectItem key={i} value={subModel.id}>{subModel.name}</SelectItem>
                                             ))}
                                         </SelectGroup>
                                         <SelectGroup className="px-3">
                                             <SelectLabel className='text-sm text-gray-400'>Premium</SelectLabel>
                                             {model.subModel.map((subModel, i) => subModel.premium == true && (
-                                                <SelectItem key={i} value={subModel.name} disabled={subModel.premium}>
-                                                    {subModel.name} {subModel.premium && <Lock className='h-4 w-4' />}
-                                                </SelectItem>
+                                                <SelectItem key={i} value={subModel.id}>{subModel.name}</SelectItem>
                                             ))}
                                         </SelectGroup>
                                     </SelectContent>
-                                </Select>}
+                                </Select>)}
                             
                         </div>
                         {<div>

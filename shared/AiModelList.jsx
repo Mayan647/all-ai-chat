@@ -36,16 +36,6 @@ export default [
         ],
     },
     {
-        model: "Mistral",
-        icon: "/mistral.png",
-        premium: true,
-        enable: true,
-        subModel: [
-            { name: "Mistral Medium 2505", premium: true, id: "mistral-medium-2505" },
-            { name: "Ministral 3B", premium: false, id: "Ministral-3B" },
-        ],
-    },
-    {
         model: "Grok",
         icon: "/grok.png",
         premium: true,
@@ -53,6 +43,16 @@ export default [
         subModel: [
             { name: "Grok 3 Mini", premium: false, id: "grok-3-mini" },
             { name: "Grok 3", premium: true, id: "grok-3" },
+        ],
+    },
+    {
+        model: "Mistral",
+        icon: "/mistral.png",
+        premium: true,
+        enable: true,
+        subModel: [
+            { name: "Mistral Medium 2505", premium: true, id: "mistral-medium-2505" },
+            { name: "Ministral 3B", premium: false, id: "Ministral-3B" },
         ],
     },
     {
